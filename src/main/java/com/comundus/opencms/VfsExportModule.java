@@ -59,6 +59,10 @@ public class VfsExportModule {
     public final void execute(final String webappDirectory,
         final String adminPassword, final String moduleName, final String targetPath)
         throws IOException, CmsException, SAXException {
+    	if (null == moduleName) {
+    		System.err.println("[WARN]VfsExportModule.execute(): moduleName param not defined");
+    		return;
+    	}
     	
         final String webinfdir = webappDirectory + File.separatorChar +
             "WEB-INF";
