@@ -9,7 +9,14 @@ import org.xml.sax.SAXException;
 import com.comundus.opencms.VfsImportModule;
 
 /**
- * A Maven2 plugin Goal to import a module from module ZIP - file
+ * A Maven2 plugin Goal to import a module from module ZIP - file.<br/>
+ *
+ * Configuration sample:
+ * 
+ * <configuration>
+ *     <moduleFileName>${project.basedir}/src/main/modules/single_module.zip</moduleFileName>
+ *     <moduleDirectoryName>${project.basedir}/src/main/modules/</moduleDirectoryName>
+ * </configuration>
  *
  * @goal import-module
  */
@@ -22,11 +29,18 @@ public class ImportModuleMojo extends AbstractVfsMojo {
     private static final String ERROR_MESSAGE = "Failed to instantiate (abstract!)" + ImportModuleMojo.SHELLCLASS;
 
     /**
-     * Module file name
+     * Single module absolute file name
      * 
-     * @parameter expression="${importFileName}"
+     * @parameter expression="${moduleFileName}"
      */
-    private String importFileName;
+    private String moduleFileName;
+
+    /**
+     * Module directory absolute name (to import several modules)
+     * 
+     * @parameter expression="${moduleDirectoryName}"
+     */
+    private String moduleDirectoryName;
 
     /**
      * Extracts a module from the targeted OpenCms.
@@ -38,7 +52,7 @@ public class ImportModuleMojo extends AbstractVfsMojo {
 
         try {
             final VfsImportModule module = new VfsImportModule();
-            module.execute(getWebappDirectory(), getAdminPassword(), this.importFileName);
+            module.execute(getWebappDirectory(), getAdminPassword(), this.moduleFileName, this.moduleDirectoryName);
         } catch (NoClassDefFoundError e) {
             throw new MojoExecutionException("Failed to load " + ImportModuleMojo.SHELLCLASS, e);
         } catch (IOException e) {

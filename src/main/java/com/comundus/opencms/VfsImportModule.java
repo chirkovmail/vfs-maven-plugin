@@ -30,8 +30,10 @@ public class VfsImportModule {
      *            path to WEB-INF of the OpenCms installation
      * @param adminPassword
      *            password of user "Admin" performing the operation
-     * @param importFileName
-     *            absolute module ZIP - file name
+     * @param moduleFileName
+     *            moduleDirectoryName module ZIP - file name
+     * @param moduleFolderName
+     *            absolute directory name to import several modules
      * @throws CmsException
      *             if anything OpenCms goes wrong
      * @throws IOException
@@ -39,10 +41,11 @@ public class VfsImportModule {
      * @throws SAXException
      *             in case configuration files cannot be parsed
      */
-    public final void execute(final String webappDirectory, final String adminPassword, final String importFileName)
-            throws IOException, CmsException, SAXException {
-        if (null == importFileName) {
-            System.err.println("[WARN]VfsImportModule.execute(): importFileName param not defined");
+    public final void execute(final String webappDirectory, final String adminPassword, final String moduleFileName,
+            final String moduleDirectoryName) throws IOException, CmsException, SAXException {
+        if ((null == moduleFileName) && (null == moduleDirectoryName)) {
+            System.err.println(
+                    "[WARN]VfsImportModule.execute(): moduleFileName or moduleDirectoryName params not defined");
             return;
         }
 
@@ -57,7 +60,23 @@ public class VfsImportModule {
 
             this.setReport(new CmsShellReport(requestcontext.getLocale()));
 
-            importModule(importFileName, cmsshell.getCmsObject());
+            // if single module file name defined
+            if (null != moduleFileName) {
+                importModule(moduleFileName, cmsshell.getCmsObject());
+            }
+
+            // if module directory name defined
+            if (null != moduleDirectoryName) {
+                final File moduleDir = new File(moduleDirectoryName);
+                if (!moduleDir.isDirectory()) {
+                    System.err.println("[WARN]VfsImportModule.execute(): moduleFolderName param is not a directory");
+                    return;
+                }
+
+                for (File moduleFile : moduleDir.listFiles()) {
+                    importModule(moduleFile.getAbsolutePath(), cmsshell.getCmsObject());
+                }
+            }
         } else {
             System.err.println("[WARN]VfsImportModule.execute(): CmsShell not available");
         }
